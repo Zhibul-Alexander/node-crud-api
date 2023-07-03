@@ -1,8 +1,17 @@
-import * as models from "./models";
+import { v4 as uuidV4 } from "uuid";
+import { IncomingMessage, ServerResponse } from "node:http";
+import { validate } from "uuid";
 
+import * as models from "./models";
+import { getRequestBody } from "./utils";
 import { ROUTER_MESSAGES } from "./constants";
 
-export const getAllUsers = async (request, response) => {
+import { IUser } from "./types";
+
+export const getAllUsers = async (
+  request: IncomingMessage,
+  response: ServerResponse
+) => {
   try {
     const users = await models.getAllUsers();
 
@@ -13,16 +22,51 @@ export const getAllUsers = async (request, response) => {
   }
 };
 
-export const findUser = async (request, response, userId) => {
+export const findUser = async (
+  request: IncomingMessage,
+  response: ServerResponse,
+  userId: string
+) => {
   try {
     const user = await models.findUser(userId);
 
-    if (user) {
+    if (user && validate(userId)) {
       response.writeHead(200, { "Content-Type": "application/json" });
       response.end(JSON.stringify(user));
+    } else if (user && !validate(userId)) {
+      response.writeHead(400, { "Content-Type": "application/json" });
+      response.end(JSON.stringify({ message: ROUTER_MESSAGES.invalidUserId }));
+    } else {
+      response.writeHead(404, { "Content-Type": "application/json" });
+      response.end(JSON.stringify({ message: ROUTER_MESSAGES.userNotFound }));
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const createUser = async (
+  request: IncomingMessage,
+  response: ServerResponse
+) => {
+  try {
+    const requestBody: any = await getRequestBody(request);
+
+    const { username, age, hobbies } = JSON.parse(requestBody as string);
+
+    const user: IUser = {
+      username,
+      age,
+      hobbies,
+    };
+
+    if (user.username && user.age && user.hobbies) {
+      const createdUser = await models.createUser(user);
+      response.writeHead(200, { "Content-Type": "application/json" });
+      response.end(JSON.stringify(createdUser));
     } else {
       response.writeHead(400, { "Content-Type": "application/json" });
-      response.end(JSON.stringify({ message: ROUTER_MESSAGES.userNotFound }));
+      response.end(JSON.stringify({ message: ROUTER_MESSAGES.requiredFields }));
     }
   } catch (e) {
     console.log(e);

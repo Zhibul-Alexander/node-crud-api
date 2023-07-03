@@ -1,4 +1,4 @@
-export const PATH = "api/users";
+export const PATH = "/api/users";
 
 export const METHODS = {
   GET: "GET",
@@ -15,8 +15,10 @@ export const SERVER_MESSAGES = {
 
 export const ROUTER_MESSAGES = {
   userNotFound: "User not found",
+  invalidUserId: "Invalid user id",
+  requiredFields: "Required fields are missing",
 };
 
 export const REG_EXPS = {
-  isUrlContainsUserId: "/^\\/api\\/user\\/[^/]+$/",
+  isUrlContainsUserId: /\/api\/users\/\w+/,
 };

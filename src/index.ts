@@ -1,6 +1,12 @@
 import { createServer, IncomingMessage, ServerResponse } from "node:http";
 
-import { getAllUsers, findUser, createUser } from "./router";
+import {
+  getAllUsers,
+  findUser,
+  createUser,
+  updateUser,
+  deleteUser,
+} from "./router";
 
 import { METHODS, PATH, SERVER_MESSAGES, REG_EXPS } from "./constants";
 
@@ -13,15 +19,15 @@ const server = createServer(
 
       if (request.url === PATH && request.method === METHODS.GET) {
         await getAllUsers(request, response);
-      } else if (
-        request.url.match(REG_EXPS.isUrlContainsUserId) &&
-        request.method === METHODS.GET
-      ) {
+      } else if (request.url.match(REG_EXPS.isUrlContainsUserId)) {
         const userId = request.url.split("/")[3];
-        if (!userId) {
-          return;
+        if (request.method === METHODS.GET) {
+          await findUser(request, response, userId);
+        } else if (request.method === METHODS.PUT) {
+          await updateUser(request, response, userId);
+        } else if (request.method === METHODS.DELETE) {
+          await deleteUser(request, response, userId);
         }
-        await findUser(request, response, userId);
       } else if (request.url === PATH && request.method === METHODS.POST) {
         await createUser(request, response);
       } else {

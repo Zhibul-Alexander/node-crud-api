@@ -12,8 +12,8 @@ export const updateDataToDB = async (filename: string, content: any) => {
 
 export const getRequestBody = async (request: IncomingMessage) => {
   try {
-    let body: string = "";
-    await new Promise((resolve) => {
+    let body = "";
+    return await new Promise((resolve) => {
       request.on("data", (data) => {
         body += data.toString();
       });

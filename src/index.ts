@@ -10,7 +10,7 @@ import {
 
 import { METHODS, PATH, SERVER_MESSAGES, REG_EXPS } from "./constants";
 
-const server = createServer(
+export const server = createServer(
   async (request: IncomingMessage, response: ServerResponse) => {
     try {
       if (!request.url) {

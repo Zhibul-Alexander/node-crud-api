@@ -1,4 +1,5 @@
 export const PATH = "/api/users";
+export const PATH_USER = "/api/user";
 
 export const METHODS = {
   GET: "GET",

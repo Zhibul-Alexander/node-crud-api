@@ -2,43 +2,30 @@ import request from "supertest";
 
 import { server } from "../index";
 import { closeServer } from "../utils";
-import { IUser } from "../types";
 
-import {} from "../constants";
+import { SERVER_MESSAGES } from "../constants";
 
-let TEST_USER_ID: string;
-let TEST_USER: IUser;
-
-const CORRECT_UUID = "a0e11d18-642a-4e0e-9fb3-0a3b65be07cf";
-const INCORRECT_UUID = "test";
-
-describe("DELETE USER REQUESTS", () => {
+describe("GET USERS REQUESTS", () => {
   afterAll(async () => {
     await closeServer(server);
   });
 
-  it("Delete user with api/users/userId request", async () => {
-    const response = await request(server).delete(`/api/users/${TEST_USER_ID}`);
-    TEST_USER_ID = response.body.id;
-    TEST_USER = response.body;
+  it("GET ALL USERS with api/users request", async () => {
+    const response = await request(server).get("/api/users");
 
-    expect(response.statusCode).toBe(204);
-    expect(response.body).toEqual(TEST_USER);
+    expect(response.statusCode).toBe(200);
   });
 
-  it("Delete user with not uuid id with api/users/id request", async () => {
-    const res = await request(server).delete(`/api/users/${notUuidId}`);
-    user = res.body;
+  it("GET ALL USERS with error api/user request", async () => {
+    const response = await request(server).get("/api/user");
 
-    expect(res.statusCode).toBe(400);
-    expect(res.body.message).toEqual(invalidIdMessage);
+    expect(response.statusCode).toBe(404);
   });
 
-  it("Delete user with not exist id with api/users/id request", async () => {
-    const res = await request(server).delete(`/api/users/${notExistId}`);
-    user = res.body;
+  it("GET ALL USERS without some request", async () => {
+    const response = await request(server).get("");
 
-    expect(res.statusCode).toBe(404);
-    expect(res.body.message).toEqual(notFoundMessage);
+    expect(response.statusCode).toBe(404);
+    expect(response.body.message).toEqual(SERVER_MESSAGES.routeError);
   });
 });

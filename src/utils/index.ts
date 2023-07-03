@@ -1,5 +1,5 @@
 import fs from "fs/promises";
-import { IncomingMessage } from "node:http";
+import { IncomingMessage, Server } from "node:http";
 
 export const updateDataToDB = async (filename: string, content: any) => {
   try {
@@ -24,4 +24,10 @@ export const getRequestBody = async (request: IncomingMessage) => {
   } catch (e) {
     console.error(e);
   }
+};
+
+export const closeServer = async (server: Server) => {
+  return new Promise<void>((resolve) => {
+    server.close(() => resolve());
+  });
 };

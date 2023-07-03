@@ -11,6 +11,7 @@ export const SERVER_MESSAGES = {
   routeError: "Route not found",
   serverError: "Server error",
   startServer: "Server running on port:",
+  processIdentifier: "process identifier:",
 };
 
 export const ROUTER_MESSAGES = {

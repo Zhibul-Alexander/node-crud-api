@@ -15,23 +15,17 @@ export const findUser = async (userId: string) => {
 };
 
 export const createUser = async (newUser: IUser) => {
-  // try {
-  //   if (!newUser) {
-  //     return;
-  //   }
-  //   const parsedUser = { ...newUser, id: uuidV4() };
-  //   DB.push(parsedUser);
-  //   await updateDataToDB("../DB.json", DB);
-  //   return Promise.resolve(parsedUser);
-  // } catch (e) {
-  //   return Promise.reject(e);
-  // }
-  return new Promise((resolve, reject) => {
-    const user = { id: uuidV4(), ...newUser };
-    DB.push(user);
-    updateDataToDB("../DB.json", DB);
-    resolve(user);
-  });
+  try {
+    if (!newUser) {
+      return;
+    }
+    const parsedUser = { ...newUser, id: uuidV4() };
+    DB.push(parsedUser);
+    await updateDataToDB("../DB.json", DB);
+    return Promise.resolve(parsedUser);
+  } catch (e) {
+    return Promise.reject(e);
+  }
 };
 
 export const updateUser = async (userId: string, user: IUser) => {

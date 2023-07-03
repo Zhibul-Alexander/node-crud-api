@@ -1,4 +1,6 @@
 import { createServer, IncomingMessage, ServerResponse } from "node:http";
+import os from "os";
+import cluster from "cluster";
 
 import {
   getAllUsers,
@@ -10,7 +12,7 @@ import {
 
 import { METHODS, PATH, SERVER_MESSAGES, REG_EXPS } from "./constants";
 
-const server = createServer(
+export const server = createServer(
   async (request: IncomingMessage, response: ServerResponse) => {
     try {
       if (!request.url) {
@@ -21,11 +23,11 @@ const server = createServer(
         await getAllUsers(request, response);
       } else if (request.url.match(REG_EXPS.isUrlContainsUserId)) {
         const userId = request.url.split("/")[3];
-        if (request.method === METHODS.GET) {
+        if (request.method === "GET") {
           await findUser(request, response, userId);
-        } else if (request.method === METHODS.PUT) {
+        } else if (request.method === "PUT") {
           await updateUser(request, response, userId);
-        } else if (request.method === METHODS.DELETE) {
+        } else if (request.method === "DELETE") {
           await deleteUser(request, response, userId);
         }
       } else if (request.url === PATH && request.method === METHODS.POST) {
@@ -44,7 +46,21 @@ const server = createServer(
 );
 
 const PORT = process.env.PORT || 4000;
+const PID = process.pid;
+const numberOfCPUs = os.cpus().length;
 
-server.listen(PORT, () =>
-  console.log(`${SERVER_MESSAGES.startServer} ${PORT}`)
-);
+if (cluster.isPrimary) {
+  for (let i = 0; i < numberOfCPUs; i++) {
+    cluster.fork();
+  }
+  cluster.on("exit", (worker) => {
+    console.log(`Worker ${worker.process.pid} died`);
+    cluster.fork();
+  });
+} else {
+  server.listen(PORT, () =>
+    console.log(
+      `${SERVER_MESSAGES.startServer} ${PORT},${SERVER_MESSAGES.processIdentifier} ${PID}`
+    )
+  );
+}
